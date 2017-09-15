@@ -1,0 +1,55 @@
+library('xlsx')
+library('MASS')
+setwd('C:/Users/BoPan/Desktop')
+
+tblaccessment = read.xlsx('rxing_130917_assessment.xls',1)
+ncol(tblaccessment)
+event_name = vector(mode="numeric", length=nrow(tblaccessment))
+tblaccessment =  cbind(tblaccessment,event_name)
+data = tblaccessment[nrow(tblaccessment)+1,] = NA
+ncol(tblaccessment)
+attach(tblaccessment)
+
+patient_id = tblaccessment[,10]
+patient_id
+
+x <- seq(length(patient_id))
+list = vector(mode="numeric", length=length(patient_id))
+for (val in x){
+      a = is.element(patient_id[val],list)
+      print(a)
+      if (a == FALSE) list[val] = patient_id[val]}
+
+rowrow_to_keep = which(list != 0)
+rowrow_to_keep
+#total 26 patient
+list <- list[rowrow_to_keep]
+
+
+for (val in list){
+      
+      sub = which(patient_id == val)
+      subpatient = tblaccessment[sub,]
+      if (length(sub) == 1){subpatient[,91] = 'baseline'}else{
+
+           sub_visit_id = subpatient[,40]
+           sub_visit_id
+           baseline = sub_visit_id[order(sub_visit_id)[1]]
+
+           y <- seq(length(sub_visit_id))
+           
+           for (x in y) { 
+                date = sub_visit_id[x]
+                diff_in_days = - difftime(baseline, sub_visit_id[x], units = "days")
+                if ( diff_in_days == 0){subpatient[x,91] = 'baseline'}
+                else if (0 < diff_in_days & diff_in_days <= 30){subpatient[x,91] = '<1 month'}
+                else if (30 < diff_in_days & diff_in_days <= 60){subpatient[x,91] = '2 month'}
+                else if (60 < diff_in_days & diff_in_days <= 90){subpatient[x,91] = '3 month'}
+                else if (90 < diff_in_days){subpatient[x,91] = '>3 month'}
+         
+                }
+         }
+      data = rbind(data,subpatient)
+}
+write.csv(data, file = "MyData.csv"，col.names=TRUE)
+
